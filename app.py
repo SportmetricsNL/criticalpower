@@ -301,17 +301,23 @@ HTML_PAGE = r"""
     </section>
 
     <section id="model" data-title="Model">
-      <h2>Het model in twee regels</h2>
-      <p>Vermogen = (W′ / tijd) + CP → tijd = W′ / (P − CP). W′-verbruik = (P − CP) × tijd.</p>
+      <h2>Critical Power-model (constante belasting)</h2>
+      <p>Geldig bij constant vermogen boven CP. Boven CP wordt W′ lineair verbruikt; onder CP kan W′ herstellen.</p>
+      <p class="muted">CP is de steady-state grens; alles daarboven is non-steady en tijdelijk.</p>
       <div class="slider-box" aria-live="polite">
         <label for="cp-input">Jouw CP (W) <span id="cp-val" class="value-tag"></span></label>
         <input id="cp-input" type="range" min="150" max="400" value="280" />
         <label for="wprime-input">Jouw W′ (kJ) <span id="wprime-val" class="value-tag"></span></label>
         <input id="wprime-input" type="range" min="8" max="30" value="15" />
-        <label for="power-input">Gepland vermogen (W) <span id="power-val" class="value-tag"></span></label>
+        <label for="power-input">Vermogen (W) <span id="power-val" class="value-tag"></span></label>
         <input id="power-input" type="range" min="200" max="450" value="320" />
         <div class="mix-row">
-          <div>Tijd tot leeg (mm:ss)</div>
+          <div>ΔP = P − CP</div>
+          <div class="mix-bar"><span id="mix-delta"></span></div>
+          <div class="mix-value" id="delta-val">0 W</div>
+        </div>
+        <div class="mix-row">
+          <div>Theoretische volhoudtijd (mm:ss)</div>
           <div class="mix-bar"><span id="mix-time"></span></div>
           <div class="mix-value" id="mix-time-value">0</div>
         </div>
@@ -326,10 +332,11 @@ HTML_PAGE = r"""
         <label for="duration-input">Doelduur (s) voor een klim / blok <span id="duration-val" class="value-tag"></span></label>
         <input id="duration-input" type="range" min="120" max="900" value="360" />
         <div class="mix-row">
-          <div>Adviesvermogen</div>
+          <div>Maximaal vol te houden vermogen</div>
           <div class="mix-bar"><span id="mix-adv"></span></div>
           <div class="mix-value" id="mix-adv-value">0 W</div>
         </div>
+        <p class="muted">Bij constante belasting en volledige inzet.</p>
       </div>
 
       <div class="cp-curve" id="cp-curve" aria-hidden="true">
@@ -430,6 +437,16 @@ HTML_PAGE = r"""
       if (cpVal) cpVal.textContent = `${cp} W`;
       if (wpVal) wpVal.textContent = `${wprimeKj.toFixed(1)} kJ`;
       if (powVal) powVal.textContent = `${power} W`;
+
+      const deltaVal = document.getElementById("delta-val");
+      const deltaBar = document.getElementById("mix-delta");
+      const deltaAbs = Math.abs(above);
+      const deltaSign = above >= 0 ? "+" : "−";
+      if (deltaVal) deltaVal.textContent = `${deltaSign}${deltaAbs} W`;
+      if (deltaBar) {
+        const width = Math.min(100, (deltaAbs / 200) * 100);
+        deltaBar.style.width = `${width}%`;
+      }
 
       if (above <= 0) {
         document.getElementById("mix-time").style.width = "0%";
