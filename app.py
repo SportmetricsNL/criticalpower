@@ -208,9 +208,27 @@ HTML_PAGE = r"""
     .mix-bar span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--sea), var(--deep)); border-radius: 999px; transition: width 0.3s ease; }
     .mix-value { text-align: right; color: var(--muted); }
 
-    .cp-curve { margin-top: 16px; display: grid; grid-template-columns: repeat(8, minmax(60px, 1fr)); gap: 8px; align-items: end; height: 140px; }
-    .cp-bar { width: 100%; border-radius: 10px 10px 6px 6px; background: rgba(47, 124, 133, 0.18); border: 1px solid rgba(47, 124, 133, 0.3); height: 40%; transition: height 0.3s ease; }
+    .cp-curve { margin-top: 16px; display: grid; grid-template-columns: repeat(8, minmax(60px, 1fr)); gap: 8px; align-items: end; height: 140px; position: relative; }
+    .cp-bar { position: relative; z-index: 1; width: 100%; border-radius: 10px 10px 6px 6px; background: rgba(47, 124, 133, 0.18); border: 1px solid rgba(47, 124, 133, 0.3); height: 40%; transition: height 0.3s ease; }
     .cp-bar.active { background: var(--deep); border-color: var(--deep); }
+    .cp-line { position: absolute; left: 0; right: 0; height: 2px; background: rgba(15, 76, 92, 0.6); z-index: 3; }
+    .cp-line span { position: absolute; right: 6px; top: -16px; font-family: "Space Grotesk", sans-serif; font-size: 0.8rem; color: var(--deep); background: #fff; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border); }
+    .zone-band { position: absolute; left: 0; right: 0; pointer-events: none; font-family: "Space Grotesk", sans-serif; font-size: 0.8rem; color: var(--deep); padding-left: 6px; display: flex; align-items: center; z-index: 0; }
+    .steady { background: rgba(85, 214, 170, 0.12); color: #0f4c5c; }
+    .nonsteady { background: rgba(244, 182, 106, 0.14); color: #5c3a12; }
+    .cp-recovery { position: absolute; left: 0; right: 0; height: 1px; border-top: 1px dashed rgba(15, 76, 92, 0.5); z-index: 2; }
+    .cp-recovery span { position: absolute; right: 6px; top: -16px; font-family: "Space Grotesk", sans-serif; font-size: 0.8rem; color: var(--deep); background: #fff; padding: 2px 6px; border-radius: 8px; border: 1px solid var(--border); }
+
+    .context-line { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+    .context-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 4px 8px; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 0.82rem; }
+    .tooltip { display: inline-block; margin-top: 8px; color: var(--muted); font-size: 0.85rem; }
+
+    .defs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 12px; }
+    .defs-card { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; background: var(--card-strong); }
+    .defs-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .defs-card ul { margin: 0; padding-left: 18px; }
+    .defs-card ul li { margin: 0 0 6px; }
 
     .vt2-bar { margin-top: 14px; position: relative; height: 16px; border-radius: 999px; background: #eef5f4; border: 1px solid rgba(15, 76, 92, 0.2); overflow: hidden; }
     .vt2-window { position: absolute; top: 0; bottom: 0; width: 18%; left: 62%; border-radius: 999px; background: rgba(47, 124, 133, 0.32); }
@@ -225,6 +243,17 @@ HTML_PAGE = r"""
 
     .cp-image { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--border); background: #fff; margin-top: 12px; }
     .image-fallback { color: var(--muted); font-size: 0.9rem; margin-top: 8px; }
+
+    .context-line { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+    .context-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 4px 8px; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 0.82rem; }
+    .tooltip { display: inline-block; margin-left: 6px; color: var(--muted); font-size: 0.85rem; }
+
+    .defs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+    .defs-card { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; background: var(--card-strong); }
+    .defs-card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .defs-card ul { margin: 0; padding-left: 18px; }
+    .defs-card ul li { margin: 0 0 6px; }
 
     @media (max-width: 980px) {
       nav { display: none; }
@@ -264,6 +293,7 @@ HTML_PAGE = r"""
     <a class="nav-link" href="#model" data-section="model"><span></span>Model</a>
     <a class="nav-link" href="#meten" data-section="meten"><span></span>Meten</a>
     <a class="nav-link" href="#casus" data-section="casus"><span></span>Casus</a>
+    <a class="nav-link" href="#begrippen" data-section="begrippen"><span></span>Begrippen</a>
     <a class="nav-link" href="#samenvatting" data-section="samenvatting"><span></span>Samenvatting</a>
     <div class="progress"><span id="progress-bar"></span></div>
   </nav>
@@ -296,7 +326,7 @@ HTML_PAGE = r"""
           <p>Verklaart waarom je kunt aanvallen én waarom je kunt opblazen.</p>
         </div>
       </div>
-      <img class="cp-image" src="{{CP_IMAGE_URI}}" alt="Critical Power visual" />
+      <img class="cp-image" id="cp-image" src="{{CP_IMAGE_URI}}" alt="Critical Power visual" />
       <div class="image-fallback">Als de visual niet laadt: CP = grens, W′ = budget boven die grens.</div>
     </section>
 
@@ -307,6 +337,13 @@ HTML_PAGE = r"""
       <div class="slider-box" aria-live="polite">
         <label for="cp-input">Jouw CP (W) <span id="cp-val" class="value-tag"></span></label>
         <input id="cp-input" type="range" min="150" max="400" value="280" />
+        <div class="context-badges">
+          <span class="badge">&lt; 200 W: recreatief</span>
+          <span class="badge">200–260 W: getraind</span>
+          <span class="badge">260–320 W: competitief</span>
+          <span class="badge">&gt; 320 W: zeer hoog niveau</span>
+        </div>
+        <p class="context-line">Indicatief, geen norm. Individuele waarden verschillen sterk.</p>
         <label for="wprime-input">Jouw W′ (kJ) <span id="wprime-val" class="value-tag"></span></label>
         <input id="wprime-input" type="range" min="8" max="30" value="15" />
         <label for="power-input">Vermogen (W) <span id="power-val" class="value-tag"></span></label>
@@ -339,9 +376,15 @@ HTML_PAGE = r"""
         <p class="muted">Bij constante belasting en volledige inzet.</p>
       </div>
 
+      <p class="tooltip">ⓘ Critical Power is individueel en afhankelijk van trainingstoestand, testprotocol en meetmethode; waarden zijn niet 1-op-1 vergelijkbaar.</p>
+
       <div class="cp-curve" id="cp-curve" aria-hidden="true">
         <div class="cp-bar"></div><div class="cp-bar"></div><div class="cp-bar"></div><div class="cp-bar"></div>
         <div class="cp-bar"></div><div class="cp-bar"></div><div class="cp-bar"></div><div class="cp-bar"></div>
+        <div class="zone-band steady" id="steady-zone"><span>≤ CP: steady-state, W′ kan herstellen</span></div>
+        <div class="zone-band nonsteady" id="nonsteady-zone"><span>&gt; CP: non-steady, W′ verbruik</span></div>
+        <div class="cp-recovery" id="cp-recovery"><span>W′ herstel mogelijk onder CP</span></div>
+        <div class="cp-line" id="cp-line"><span>CP</span></div>
       </div>
     </section>
 
@@ -362,6 +405,60 @@ HTML_PAGE = r"""
         </div>
       </div>
       <div class="callout">CP/W′ komt uit je power–duration gedrag en maakt expliciet wat er boven je duurzame grens gebeurt.</div>
+    </section>
+
+    <section id="begrippen" data-title="Begrippen">
+      <h2>Wat betekenen de variabelen?</h2>
+      <div class="defs-grid">
+        <div class="defs-card">
+          <h3>Vermogen (P, W)</h3>
+          <ul>
+            <li>Mechanische energie per seconde (1 W = 1 J/s).</li>
+            <li>Hoger vermogen = meer energie per tijdseenheid.</li>
+            <li>Gemeten met vermogensmeter (crank/pedaal/naaf/trainer); kalibreer/zero-offset voor nauwkeurigheid.</li>
+            <li>Onafhankelijk van snelheid of terrein.</li>
+          </ul>
+        </div>
+        <div class="defs-card">
+          <h3>Critical Power (CP)</h3>
+          <ul>
+            <li>Hoogste vermogen dat langdurig vol te houden is zonder voortdurende uitputting.</li>
+            <li>Grens tussen steady-state en non-steady-state (verwant aan VT2/MLSS).</li>
+            <li>Typisch ±30–60 minuten vol te houden.</li>
+          </ul>
+        </div>
+        <div class="defs-card">
+          <h3>W′ (“W-prime”)</h3>
+          <ul>
+            <li>Beperkte extra energie boven CP (kJ); model van anaerobe capaciteit.</li>
+            <li>Verbruikt bij P &gt; CP; kan (gedeeltelijk) herstellen bij P &lt;= CP.</li>
+            <li>Geen vaste “tank”, maar een modelmatige tijdelijke capaciteit.</li>
+          </ul>
+        </div>
+        <div class="defs-card">
+          <h3>P</h3>
+          <ul>
+            <li>Gekozen of geleverd vermogen.</li>
+            <li>P ≤ CP: steady-state mogelijk; P &gt; CP: W′ wordt aangesproken.</li>
+          </ul>
+        </div>
+        <div class="defs-card">
+          <h3>Tijd (t)</h3>
+          <ul>
+            <li>Duur (s) dat een vermogen wordt geleverd.</li>
+            <li>Hoe groter ΔP, hoe sneller W′ opgaat en hoe korter de maximale volhoudtijd.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Formules (constante belasting boven CP)</h3>
+      <ul class="summary-list">
+        <li>W′-verbruik: W′ = (P − CP) × t</li>
+        <li>Volhoudtijd: t = W′ / (P − CP)</li>
+      </ul>
+      <p class="muted">Alleen geldig bij constant vermogen; vereenvoudigd model.</p>
+      <p class="muted">In praktijk wisselt vermogen voortdurend; CP-model helpt plannen/begrijpen, niet exact voorspellen.</p>
+      <p class="muted">W′ herstelt alleen bij belasting onder of rond CP; hersteltempo hangt af van hoe ver je onder CP zit.</p>
     </section>
 
     <section id="casus" data-title="Casus">
@@ -469,6 +566,29 @@ HTML_PAGE = r"""
         bar.style.height = `${30 + norm * 70}%`;
         bar.classList.toggle("active", Math.abs(p - power) < 10);
       });
+
+      const cpLine = document.getElementById("cp-line");
+      const steadyZone = document.getElementById("steady-zone");
+      const nonsteadyZone = document.getElementById("nonsteady-zone");
+      const cpRecovery = document.getElementById("cp-recovery");
+      if (cpLine) {
+        const norm = Math.min(1, (cp - 150) / 350);
+        const pct = 30 + norm * 70;
+        cpLine.style.bottom = `${pct}%`;
+        if (steadyZone) {
+          steadyZone.style.height = `${pct}%`;
+          steadyZone.style.bottom = "0";
+        }
+        if (nonsteadyZone) {
+          const topPct = 100 - pct;
+          nonsteadyZone.style.height = `${topPct}%`;
+          nonsteadyZone.style.bottom = `${pct}%`;
+        }
+        if (cpRecovery) {
+          const recPct = Math.max(5, pct - 8);
+          cpRecovery.style.bottom = `${recPct}%`;
+        }
+      }
     }
 
     function updateAdvice() {
