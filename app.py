@@ -1,4 +1,3 @@
-
 import base64
 from pathlib import Path
 
@@ -203,6 +202,7 @@ HTML_PAGE = r"""
     .slider-box { margin-top: 18px; padding: 18px; border-radius: 18px; border: 1px dashed rgba(47, 124, 133, 0.4); background: #eef5f4; }
     .slider-box label { font-family: "Space Grotesk", sans-serif; font-size: 0.9rem; }
     .slider-box input[type="range"] { width: 100%; margin: 10px 0 6px; }
+    .value-tag { display: inline-block; margin-left: 8px; padding: 4px 8px; border-radius: 10px; background: #fff; border: 1px solid var(--border); font-family: "Space Grotesk", sans-serif; font-size: 0.85rem; color: var(--deep); }
     .mix-row { display: grid; grid-template-columns: 130px 1fr 54px; gap: 12px; align-items: center; margin: 10px 0; font-family: "Space Grotesk", sans-serif; font-size: 0.85rem; }
     .mix-bar { background: #eef5f4; border-radius: 999px; overflow: hidden; height: 10px; border: 1px solid rgba(15, 76, 92, 0.2); }
     .mix-bar span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--sea), var(--deep)); border-radius: 999px; transition: width 0.3s ease; }
@@ -304,11 +304,11 @@ HTML_PAGE = r"""
       <h2>Het model in twee regels</h2>
       <p>Vermogen = (W′ / tijd) + CP → tijd = W′ / (P − CP). W′-verbruik = (P − CP) × tijd.</p>
       <div class="slider-box" aria-live="polite">
-        <label for="cp-input">Jouw CP (W)</label>
+        <label for="cp-input">Jouw CP (W) <span id="cp-val" class="value-tag"></span></label>
         <input id="cp-input" type="range" min="150" max="400" value="280" />
-        <label for="wprime-input">Jouw W′ (kJ)</label>
+        <label for="wprime-input">Jouw W′ (kJ) <span id="wprime-val" class="value-tag"></span></label>
         <input id="wprime-input" type="range" min="8" max="30" value="15" />
-        <label for="power-input">Gepland vermogen (W)</label>
+        <label for="power-input">Gepland vermogen (W) <span id="power-val" class="value-tag"></span></label>
         <input id="power-input" type="range" min="200" max="450" value="320" />
         <div class="mix-row">
           <div>Tijd tot leeg (mm:ss)</div>
@@ -323,7 +323,7 @@ HTML_PAGE = r"""
       </div>
 
       <div class="slider-box" aria-live="polite">
-        <label for="duration-input">Doelduur (s) voor een klim / blok</label>
+        <label for="duration-input">Doelduur (s) voor een klim / blok <span id="duration-val" class="value-tag"></span></label>
         <input id="duration-input" type="range" min="120" max="900" value="360" />
         <div class="mix-row">
           <div>Adviesvermogen</div>
@@ -421,14 +421,28 @@ HTML_PAGE = r"""
       const cp = parseInt(cpInput.value, 10);
       const wprime = parseInt(wprimeInput.value, 10) * 1000; // to J
       const power = parseInt(powerInput.value, 10);
-      const above = Math.max(1, power - cp);
-      const timeSec = wprime / above;
+      const above = power - cp;
       const wprimeKj = wprime / 1000;
 
-      document.getElementById("mix-time").style.width = `${Math.min(100, (timeSec / 600) * 100)}%`;
-      document.getElementById("mix-wprime").style.width = `${Math.min(100, (wprimeKj / 30) * 100)}%`;
-      document.getElementById("mix-time-value").textContent = formatTime(timeSec);
-      document.getElementById("mix-wprime-value").textContent = `${wprimeKj.toFixed(1)} kJ`;
+      const cpVal = document.getElementById("cp-val");
+      const wpVal = document.getElementById("wprime-val");
+      const powVal = document.getElementById("power-val");
+      if (cpVal) cpVal.textContent = `${cp} W`;
+      if (wpVal) wpVal.textContent = `${wprimeKj.toFixed(1)} kJ`;
+      if (powVal) powVal.textContent = `${power} W`;
+
+      if (above <= 0) {
+        document.getElementById("mix-time").style.width = "0%";
+        document.getElementById("mix-wprime").style.width = "0%";
+        document.getElementById("mix-time-value").textContent = "∞";
+        document.getElementById("mix-wprime-value").textContent = "0 kJ";
+      } else {
+        const timeSec = wprime / above;
+        document.getElementById("mix-time").style.width = `${Math.min(100, (timeSec / 600) * 100)}%`;
+        document.getElementById("mix-wprime").style.width = `${Math.min(100, (wprimeKj / 30) * 100)}%`;
+        document.getElementById("mix-time-value").textContent = formatTime(timeSec);
+        document.getElementById("mix-wprime-value").textContent = `${wprimeKj.toFixed(1)} kJ`;
+      }
 
       const bars = Array.from(document.querySelectorAll("#cp-curve .cp-bar"));
       bars.forEach((bar, idx) => {
@@ -445,6 +459,8 @@ HTML_PAGE = r"""
       const wprime = parseInt(wprimeInput.value, 10) * 1000;
       const dur = parseInt(durationInput.value, 10);
       const advPower = cp + wprime / dur;
+      const durVal = document.getElementById("duration-val");
+      if (durVal) durVal.textContent = `${dur} s`;
       document.getElementById("mix-adv").style.width = `${Math.min(100, (advPower - 150) / 3.5)}%`;
       document.getElementById("mix-adv-value").textContent = `${Math.round(advPower)} W`;
     }
